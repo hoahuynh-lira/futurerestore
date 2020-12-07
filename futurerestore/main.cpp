@@ -61,6 +61,7 @@ static struct option longopts[] = {
 void cmd_help(){
     printf("Usage: futurerestore [OPTIONS] iPSW\n");
     printf("Allows restoring to non-matching firmware with custom SEP+baseband\n");
+    printf("Patch by Hoa Huynh\n");
     printf("\nGeneral options:\n");
     printf("  -t, --apticket PATH\t\tSigning tickets used for restoring\n");
     printf("  -u, --update\t\t\tUpdate instead of erase install (requires appropriate APTicket)\n");
