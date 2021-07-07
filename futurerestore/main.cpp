@@ -20,6 +20,7 @@ extern "C"{
 };
 
 #include <libgeneral/macros.h>
+#include <img4tool/img4tool.hpp>
 #ifdef HAVE_LIBIPATCHER
 #include <libipatcher/libipatcher.hpp>
 #endif
@@ -59,17 +60,15 @@ static struct option longopts[] = {
 #define FLAG_IS_PWN_DFU         1 << 5
 
 void cmd_help(){
-    printf("Usage: futurerestore [OPTIONS] iPSW\n");
-    printf("Allows restoring to non-matching firmware with custom SEP+baseband\n");
-    printf("Patch Linux bởi Hòa Huỳnh\n");
-    printf("Hộ trợ thêm iOS14\n");
+   // printf("Options:\n");
+   // printf("Allows restoring to non-matching firmware with custom SEP+baseband\n");
     printf("\nGeneral options:\n");
-    printf("  -t, --apticket PATH\t\tSigning tickets used for restoring\n");
-    printf("  -u, --update\t\t\tUpdate instead of erase install (requires appropriate APTicket)\n");
-    printf("              \t\t\tDO NOT use this parameter, if you update from jailbroken firmware!\n");
-    printf("  -w, --wait\t\t\tKeep rebooting until ApNonce matches APTicket (ApNonce collision, unreliable)\n");
-    printf("  -d, --debug\t\t\tShow all code, use to save a log for debug testing\n");
-    printf("  -e, --exit-recovery\t\tExit recovery mode and quit\n");
+    printf("  -t : \t\tSHSH2\n");
+    //printf("  -u, --update\t\t\tUpdate instead of erase install (requires appropriate APTicket)\n");
+   // printf("              \t\t\tDO NOT use this parameter, if you update from jailbroken firmware!\n");
+   // printf("  -w, --wait\t\t\tKeep rebooting until ApNonce matches APTicket (ApNonce collision, unreliable)\n");
+    //printf("  -d, --debug\t\t\tShow all code, use to save a log for debug testing\n");
+    printf("  -e , --exit-recovery :\t\tExit recovery mode and quit\n");
     
 #ifdef HAVE_LIBIPATCHER
     printf("\nOptions for downgrading with Odysseus:\n");
@@ -77,37 +76,39 @@ void cmd_help(){
     printf("      --just-boot=\"-v\"\t\tTethered booting the device from pwned DFU mode. You can optionally set boot-args\n");
 #endif
         
-    printf("\nOptions for SEP:\n");
-    printf("      --latest-sep\t\tUse latest signed SEP instead of manually specifying one (may cause bad restore)\n");
+    printf("\nSEP Firmware:\n");
+   // printf("      --latest-sep\t\tUse latest signed SEP instead of manually specifying one (may cause bad restore)\n");
     printf("  -s, --sep PATH\t\tSEP to be flashed\n");
     printf("  -m, --sep-manifest PATH\tBuildManifest for requesting SEP ticket\n");
         
-    printf("\nOptions for baseband:\n");
-    printf("      --latest-baseband\t\tUse latest signed baseband instead of manually specifying one (may cause bad restore)\n");
+    printf("\nbaseband:\n");
+  //  printf("      --latest-baseband\t\tUse latest signed baseband instead of manually specifying one (may cause bad restore)\n");
     printf("  -b, --baseband PATH\t\tBaseband to be flashed\n");
     printf("  -p, --baseband-manifest PATH\tBuildManifest for requesting baseband ticket\n");
-    printf("      --no-baseband\t\tSkip checks and don't flash baseband\n");
-    printf("                   \t\tOnly use this for device without a baseband (eg. iPod touch or some Wi-Fi only iPads)\n\n");
+   // printf("      --no-baseband\t\tSkip checks and don't flash baseband\n");
+  //  printf("                   \t\tOnly use this for device without a baseband (eg. iPod touch or some Wi-Fi only iPads)\n\n");
 }
 
+using namespace std;
+using namespace tihmstar;
+int main_r(int argc, const char * argv[]) {
 #ifdef WIN32
     DWORD termFlags;
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if (GetConsoleMode(handle, &termFlags))
         SetConsoleMode(handle, termFlags | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 #endif
-
-using namespace std;
-using namespace tihmstar;
-int main_r(int argc, const char * argv[]) {
     int err=0;
-    printf("Version: " VERSION_COMMIT_SHA " - " VERSION_COMMIT_COUNT "\n");
+    printf("LiGoRa\n");
+    printf("by LiRa Team\n");
+    printf("Version: "VERSION_COMMIT_COUNT "\n");
+   // printf("%s\n",tihmstar::img4tool::version());
 #ifdef HAVE_LIBIPATCHER
     printf("%s\n",libipatcher::version());
     printf("Odysseus for 32-bit support: yes\n");
     printf("Odysseus for 64-bit support: %s\n",(libipatcher::has64bitSupport() ? "yes" : "no"));
 #else
-    printf("Odysseus support: no\n");
+  //  printf("Odysseus support: no\n");
 #endif
 
     int optindex = 0;
@@ -196,7 +197,7 @@ int main_r(int argc, const char * argv[]) {
     }else if (argc == optind && flags & FLAG_WAIT) {
         info("User requested to only wait for ApNonce to match, but not for actually restoring\n");
     }else if (exitRecovery){
-        info("Exiting to recovery mode\n");
+        info("Exiting from recovery mode to normal mode\n");
     }else{
         error("argument parsing failed! agrc=%d optind=%d\n",argc,optind);
         if (idevicerestore_debug){
@@ -256,9 +257,8 @@ int main_r(int argc, const char * argv[]) {
             
             versVals.basebandMode = kBasebandModeWithoutBaseband;
             if (!client.is32bit() && !(isSepManifestSigned = isManifestSignedForDevice(client.sepManifestPath(), &devVals, &versVals))){
-                reterror("SEP firmware doesn't signed\n");
+                reterror("SEP firmware is NOT being signed!\n");
             }
-            
             if (flags & FLAG_NO_BASEBAND){
                 printf("\nWARNING: user specified is not to flash a baseband. This can make the restore fail if the device needs a baseband!\n");
                 printf("if you added this flag by mistake, you can press CTRL-C now to cancel\n");
@@ -285,10 +285,11 @@ int main_r(int argc, const char * argv[]) {
                     printf("[WARNING] using tsschecker's fallback to get BasebandGoldCertID. This might result in invalid baseband signing status information\n");
                 }
                 if (!(isBasebandSigned = isManifestSignedForDevice(client.basebandManifestPath(), &devVals, &versVals))) {
-                    reterror("baseband firmware doesn't signed\n");
+                    reterror("baseband firmware is NOT being signed!\n");
                 }
             }
         }
+        client.downloadLatestFirmwareComponents();
         client.putDeviceIntoRecovery();
         if (flags & FLAG_WAIT){
             client.waitForNonce();
