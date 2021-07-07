@@ -28,8 +28,8 @@ esac
 
 # Checks the flags.
 CFLAGS+=" -DIDEVICERESTORE_NOMAIN=1 -DTSSCHECKER_NOMAIN=1"
-CXXFLAGS+=" -std=c++11"
-CFLAGS+=" -std=c11"
+CXXFLAGS+=" -std=gnu++11"
+CFLAGS+=" -std=gnu11"
 
 AC_DEFUN([AX_UNPRECIOUS], [
     m4_define([_AC_PRECIOUS_VARS], m4_bpatsubst(_AC_PRECIOUS_VARS, [$1], []))
@@ -42,11 +42,11 @@ AC_CONFIG_SRCDIR([futurerestore])
 
 # Checks the libraries.
 LIBIPATCHER_REQUIRES_STR="libipatcher >= 61"
-LIBPLIST_REQUIRES_STR="libplist-2.0 >= 2.0.0"
+LIBPLIST_REQUIRES_STR="libplist-2.0 >= 2.2.0"
 LIBZIP_REQUIRES_STR="libzip >= 0.10"
 LIBIMOBILEDEVICE_REQUIRES_STR="libimobiledevice-1.0 >= 1.2.1"
 LIBFRAGMENTZIP_REQUIRES_STR="libfragmentzip >= 47"
-LIBIRECOVERY_REQUIRES_STR="libirecovery-1.0 >= 0.2.0"
+LIBIRECOVERY_REQUIRES_STR="libirecovery-1.0 >= 1.0.0"
 IMG4TOOL_REQUIRES_STR="libimg4tool >= 162"
 LIBGENERAL_REQUIRES_STR="libgeneral >= 26"
 
@@ -81,7 +81,7 @@ else
 fi
 AM_CONDITIONAL([HAVE_LIBIPATCHER],[test "x$do_libipatcher" = "xyes"])
 
-AC_DEFINE(CUSTOM_LOGGING, 1, [required for futurerestore])
+AC_DEFINE(CUSTOM_LOGGING, <stdlib.h>, [required for futurerestore])
 
 LT_INIT
 
